@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+if [ -f /etc/os-release ]; then # Distros with systemd support
+    . /etc/os-release
+    OS=$ID
+    VER=$VERSION_ID
+else # Fall back to uname
+   OS=$(uname -s)
+   VER=$(uname -r)
+fi
+case $(uname -m) in
+   x86_64) BITS=64 ;;
+   i*86) BITS=32 ;;
+   *) BITS=? ;;
+esac
+
+while [ "$#" -gt 0 ]; do
+   case "$1" in
+      "dist"*) echo -n $OS ;;
+      "ver"*) echo -n $VER ;;
+      "bits") echo -n $BITS ;;
+      "arch"*) echo -n `uname -m` ;;
+      "export")
+         export OS_NAME=$OS
+         export OS_VERSION=$VER
+         export OS_BITS=$BITS
+         export OS_ARCH=`uname -m`
+         echo -n "Exported."
+      ;;
+      "help")
+         echo "Just string together the commands and it will print out the right data"
+         echo "Commands: dist, ver, bits, arch, export, help"
+         echo "- dist: Displays the name of the OS"
+         echo "- ver: Displays the version of the OS"
+         echo "- bits: Shows how many bits the OS has"
+         echo "- arch: Shows the raw arch of the system"
+         echo "- export: Exports the data into variables"
+         echo -n "- help: Shows this help string"
+      ;;
+   esac
+   shift
+   [ "$#" -eq 0 ] || echo -n " "
+   [ "$#" -eq 0 ] && echo
+done

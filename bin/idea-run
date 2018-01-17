@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+setopt extendedglob
+
+# Clean up
+rm -rf out/build
+mkdir -p out/build
+
+# Build
+javac -d out/build `ls src/* | grep .java`
+cp src/*.^java out/build
+
+# Run
+(cd out/build; java $1)

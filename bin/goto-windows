@@ -1,0 +1,10 @@
+#!/usr/bin/env zsh
+
+autoload colors
+C='\e[031m' # Color
+R="\e[0m" # Reset
+sudo -p 'Enter your password: ' echo > /dev/null && echo "\e[032m\uf42e Authenticated$R" || {echo $C"\uf467 Failed to autenticate$R" && exit 1}
+
+sudo grub-reboot 2
+echo Rebooting into Windows...
+sudo reboot now

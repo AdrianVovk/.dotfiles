@@ -1,0 +1,102 @@
+#!/usr/bin/env zsh
+
+# Setup some formatting
+autoload colors
+C='\e[031m' # Color
+B="\e[1m" # Bold
+D="\e[2m" # Dim (for commands)
+R="\e[0m" # Reset
+
+# Fetch the command
+COMMAND="$1"
+if [ -z $COMMAND ]; then
+	echo "Usage: `basename $0` COMMAND <ARGUMENTS>"
+	echo "Run $D`basename $0` help$R to see a list of available commands"
+	exit 1
+else
+	shift
+fi
+
+# Run commands based on input
+# TODO: Move everything to Nix
+case $COMMAND in
+	'i'*'-deb') # Install DEB
+		sudo dpkg -i $@
+		;;
+	'i'*) # Install
+		sudo apt install $@
+		;;
+	'un'*) # Uninstall
+		sudo apt remove $@
+		;;
+	'up'*) # Upgrade
+		H1=$C$B
+		H="\n$H1"
+
+		sudo echo > /dev/null && echo "\e[032m\uf42e Authenticated$R" || {echo $C"\uf467 Failed to autenticate$R" && exit 1}
+
+      echo "$H1----- NixOS -----$R"
+      echo "TODO: Update NixOS"
+
+		echo "$H----- Profile -----$R"
+		echo "TODO: Fetch the newest version of ~/.dotfiles"
+		echo "TODO: Update the Nix profile (will update all of the installed tools)"
+
+		echo "$H----- Apt ------$R"
+		sudo apt update
+		sudo apt full-upgrade -y
+		sudo apt autoremove -y
+
+		echo "$H----- Snap -----$R"
+		sudo snap refresh
+
+		echo "$H----- Flatpak -----$R"
+		flatpak update -y
+		flatpak update --user -y
+
+		echo "$H----- SDKMAN! -----$R"
+
+		eval $loadSdkman
+		yes | sdk ug | tail -n +2
+		sdk selfupdate
+
+		echo "$H----- LinuxBrew -----$R"
+		brew update
+		brew upgrade
+
+		echo "$H----- Node.js -----$R"
+		eval $loadNvm
+		nvm install node
+
+		echo "$H----- Oh-My-Zsh -----$R"
+		env ZSH=$ZSH sh $ZSH/tools/upgrade.sh
+
+      echo "\n$C- zsh-autosuggestions -$R"
+		(cd $ZSH_CUSTOM/plugins/zsh-autosuggestions && git pull)
+
+		echo "\n$C- Powerlevel9K -$R"
+		(cd $ZSH_CUSTOM/themes/powerlevel9k/ && git pull)
+
+		echo $H"Done"
+		;;
+	'refresh')
+		sudo apt update
+		;;
+	's'* | 'f'*) # Search/find
+		apt search $@
+		;;
+	'help' | 'man')
+		echo "$C`basename $0`$R: A simple utility for easily managing packages for various tools"
+		echo $D"i-deb$R or$D install-deb$R: Install a deb file"
+		echo $D"i$R or$D install$R: Install a program using apt"
+		echo $D"un$R or $Duninstall$R: Remove a program using apt"
+		echo $D"up$R or$D Dupdate$R: Upgrade all packages on all package managers"
+		echo $D"update$R: Refresh the apt package database"
+		echo $D"f$R,$D find$R,$D s$R, or$D search$R: Find a package in apt"
+		;;
+	*) # An invalid command
+		echo $C"Invalid command$R" # For some reason the $C variable doesn't work in this string. No clue why
+		echo "Use $D`basename $0` help$R to see a list of available commands"
+		exit 1
+	;;
+esac

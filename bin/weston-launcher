@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+DISABLE_AUTO_TITLE=true; source $ZSH/lib/termsupport.zsh
+title "Menu"
+COMMAND=$(whiptail --inputbox "Run a command" 10 50 --title "Run" --topleft 3>&1 1>&2 2>&3)
+eval $COMMAND &

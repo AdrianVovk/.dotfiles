@@ -1,0 +1,2 @@
+#!/usr/bin/env zsh
+gtts-cli "$@" | mpg321 -q -

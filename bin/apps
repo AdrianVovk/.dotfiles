@@ -1,0 +1,85 @@
+#!/usr/bin/env zsh
+BIN_DIR=`dirname $0`
+
+# Setup some formatting
+autoload colors
+C='\e[031m' # Red
+B="\e[1m" # Bold
+D="\e[2m" # Dim (for commands)
+R="\e[0m" # Reset
+
+# Fetch the command
+COMMAND="$1"
+if [ -z $COMMAND ]; then
+	echo "Usage: $D`basename $0` command <arguments>$R"
+	echo "Run $D`basename $0` help$R to see a list of available commands"
+	exit 1
+else
+	shift
+fi
+
+case $COMMAND in
+   'new' | 'n')
+      if [[ ! -f $BIN_DIR/$1 ]]; then
+         echo Creating $1
+      	echo "#!/usr/bin/env zsh\necho TODO: Implement" > $BIN_DIR/$1
+      	chmod +x $BIN_DIR/$1
+      	micro $BIN_DIR/$1
+      else
+      	echo $C"Command $B$1$R$C already exists$R"
+      	exit 1
+      fi
+   ;;
+   'edit' | 'e')
+      if [[ -f $BIN_DIR/$1 ]]; then
+         echo Editing $1
+         micro $BIN_DIR/$1
+      else
+         echo $C"Command $B$1$R$C doesn't exist$R"
+      fi
+   ;;
+   'rename' | 'r')
+      if [[ -f $BIN_DIR/$1 ]]; then
+         echo Renaming $1 to $2
+         mv $BIN_DIR/$1 $BIN_DIR/$2
+      else
+         echo $C"Command $B$1$R$C doesn't exist$R"
+      fi
+   ;;
+   'list' | 'l')
+      echo "All apps:"
+      for app (`ls $BIN_DIR | grep -v "extras"`) echo "   $app"
+   ;;
+   'selfedit' | 'se')
+      `basename $0` edit `basename $0`
+   ;;
+   'clone' | 'c')
+      if [[ -f $BIN_DIR/$1 ]]; then
+         echo Cloning $1 to $2
+         cp $BIN_DIR/$1 $BIN_DIR/$2
+      else
+         echo $C"Command $B$1$R$C doesn't exist$R"
+      fi
+   ;;
+   'delete' | 'd')
+      if [[ -f $BIN_DIR/$1 ]]; then
+         echo Deleting $1
+         rm $BIN_DIR/$1
+      else
+         echo $C"Command $B$1$R$C doesn't exist$R"
+      fi
+   ;;
+	'help' | 'man')
+		echo "$C`basename $0`$R: A simple utility for easily managing packages for various tools"
+		echo $D"n$R or$D new$R: Create a new app"
+		echo $D"e$R or$D edit$R: Edit an existing app"
+		echo $D"se$R or$D selfedit$R: Edit this tool"
+		echo $D"l$R or$D list$R: List the installed apps"
+		echo $D"r$R or$D rename$R: Rename an app"
+		echo $D"c$R or$D clone$R: Clone/Fork an app"
+		echo $D"d$R or$D delete$R: Delete an app"
+		;;
+	*) # An invalid command
+		echo $C"Invalid command$R"
+	;;
+esac

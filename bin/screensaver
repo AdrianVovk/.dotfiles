@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+sleep 0.25
+cmds=(
+   "pipes.sh -p25 -r0 -f99"
+   "tput smcup; cmatrix -absC blue; tput rmcup"
+)
+zsh -c "${cmds[RANDOM % 2]}"

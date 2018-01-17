@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+rec -q --encoding signed-integer --bits 16 --channels 1 --rate 16000 /tmp/stt.wav silence 1 0.1 3% 1 3.0 3%
+curl -s -X POST --data-binary @/tmp/stt.wav --user-agent 'Mozilla/5.0' --header 'Content-Type: audio/l16; rate=16000;' "https://www.google.com/speech-api/v2/recognize?output=json&lang=en&key=AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw&client=Mozilla/5.0&app=test" | sed -e 's/[{}]/''/g' | awk -F":" '{print $4}' | awk -F"," '{print $1}' | tr -d "\""
+rm -rf /tmp/stt.wav
